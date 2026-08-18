@@ -2,6 +2,8 @@ from src.io_clem import import_data
 from src.io_clem import select_measurement
 from src.plotting import plot_one_measurement
 from src.plotting import plot_all_data
+from src.plotting import plot_all_ffts
+from src.signal_processing import choose_frame
 from src.signal_processing import remove_dc_offset
 from src.signal_processing import calc_fft
 from pathlib import Path
@@ -15,11 +17,13 @@ RESULTS_DIR = ROOT_DIR / "results"
 
 def main() -> None:
     measurements = import_data(DATA_DIR)
-    c_measurements = remove_dc_offset(measurements)
-    plot_all_data(c_measurements, RESULTS_DIR) # activate/deactivate if you need to plot/replot data
+    framed_measurements = choose_frame(measurements, 5,30)
+    centered_measurements = remove_dc_offset(framed_measurements)
+    # plot_all_data(centered_measurements, RESULTS_DIR) # activate/deactivate if you need to plot/replot data
 
-    spectra = calc_fft(c_measurements)
-    
+    spectra = calc_fft(centered_measurements)
+
+    plot_all_ffts(spectra, RESULTS_DIR)
    
 
 
