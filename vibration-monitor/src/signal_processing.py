@@ -4,12 +4,12 @@ import matplotlib.pyplot as plt
 from scipy import signal
 
 
-def choose_frame(measurements: dict[str, pd.DataFrame], min: int, max: int) -> dict[str, pd.DataFrame]:
+def choose_frame(measurements: dict[str, pd.DataFrame], start_time: int, end_time: int) -> dict[str, pd.DataFrame]:
     framed_measurements = {}
     for name, data in measurements.items():
         column_names = list(data.columns)
-        #nur daten wählen, die zwischen min (sek) und max (sek) sind
-        mask = ((data[column_names[0]] >= min) & (data[column_names[0]] <= max))
+        #nur daten wählen, die zwischen start_time (sek) und end_time (sek) sind
+        mask = ((data[column_names[0]] >= start_time) & (data[column_names[0]] <= end_time))
         selected_data = data.loc[mask]
         name_framed = f"{name}_framed"
         framed_measurements[name_framed] = selected_data
@@ -44,7 +44,7 @@ def calc_fft(measurements: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
                 fft_abs_normiert[1:-1] *= 2 
             else:
                 fft_abs_normiert[1:] *= 2
-            column_name = data.columns[signal_index].split("(",1)[0]
+            column_name = data.columns[signal_index].split("(",1)[0].strip()
             spectrum_data[column_name] = fft_abs_normiert
         spectra[name] = pd.DataFrame(spectrum_data)
     return spectra
