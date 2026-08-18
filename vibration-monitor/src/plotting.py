@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-def plot_all_data(measurements: dict[str, pd.DataFrame]) -> None:
+def plot_all_data(measurements: dict[str, pd.DataFrame], RESULTS_DIR) -> None:
     for name, data in measurements.items():
         axis_labels = list(data.columns)
      
@@ -22,7 +22,9 @@ def plot_all_data(measurements: dict[str, pd.DataFrame]) -> None:
 
         fig.suptitle(name)
         fig.tight_layout(rect=[0,0,1,0.95]) # damit titel nicht überlappen
-        plt.show()
+        file_path = RESULTS_DIR / f"{name}.png"
+        fig.savefig(file_path)
+        plt.close()
 
 def plot_one_measurement(name: str, data: pd.DataFrame) -> None:
     axis_labels = list(data.columns)
