@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 masterarbeit/
 vibration-monitor/data/*.zip
+vibration-monitor/results/
+.vscode/
+vibration-monitor/old_code
