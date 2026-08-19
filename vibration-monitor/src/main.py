@@ -3,9 +3,12 @@ from src.io_clem import select_measurement
 from src.plotting import plot_one_measurement
 from src.plotting import plot_all_data
 from src.plotting import plot_all_ffts
+from src.plotting import plot_all_ffts_inkl_peaks
 from src.signal_processing import choose_frame
 from src.signal_processing import remove_dc_offset
 from src.signal_processing import calc_fft
+from src.features import extract_strongest_peaks
+from src.features import extract_prominent_peaks
 from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,9 +26,13 @@ def main() -> None:
 
     spectra = calc_fft(centered_measurements)
 
-    plot_all_ffts(spectra, RESULTS_DIR)
-   
+    # plot_all_ffts(spectra, RESULTS_DIR)
 
+    strongest_peaks = extract_prominent_peaks(spectra)
+
+    plot_all_ffts_inkl_peaks(spectra, RESULTS_DIR, strongest_peaks)
+   
+    print(type(spectra))
 
 
     # plot data
