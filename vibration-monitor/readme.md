@@ -6,21 +6,52 @@ Das Projekt dient dazu, meine praktische Erfahrung mit Python, Sensordaten, Sign
 
 ## Versuchsaufbau
 
-Das Smartphone ist mit dem Klip des Ventillator fix eingeklemmt. Dadurch werden die mechanischen Schwingungen auf das Smartphone und dessen Beschleunigungssensor übertragen. Aufgezeichnet wird die lineare Beschleunigung ohne Erdbeschleunigung in x-, y- und z-Richtung.
+Das Smartphone wird ohne Schutzhülle mit dem Clip des Ventilators fest eingeklemmt. Dadurch werden die mechanischen Schwingungen auf das Smartphone und dessen Beschleunigungssensor übertragen. Aufgezeichnet wird die lineare Beschleunigung ohne Erdbeschleunigung in x-, y- und z-Richtung.
 
 ![Ventilator und Smartphone im Versuchsaufbau](Versuchsaufbau%20(3).jpg)
 
-Untersucht werden fünf Zustände (`level0` bis `level4`) mit jeweils zwei Wiederholungsmessungen. `level0` beschreibt den ausgeschalteten Ventilator und dient als Referenz.
+Untersucht werden fünf Zustände (`level0` bis `level4`) mit jeweils zehn unabhängigen Messungen. `level0` beschreibt den ausgeschalteten Ventilator und dient als Referenz.
 
 Die aktuelle Messreihe umfasst:
 
-- 10 Messungen
+- 50 Messungen in zehn Durchgängen
 - ungefähr 100 Samples pro Sekunde
 - drei Beschleunigungsachsen
 - einen stabilen Auswertebereich von 5 bis 30 Sekunden
 - eine maximal darstellbare Frequenz von ungefähr 50 Hz gemäß Nyquist-Grenze
 
 Der Aufbau ist bewusst einfach gehalten. Die Messungen sind daher nicht als kalibrierte Zustandsüberwachung zu verstehen, sondern als reproduzierbarer Datensatz für die Entwicklung und Erprobung der Softwarepipeline.
+
+### Messprotokoll
+
+Ein Durchgang besteht aus je einer Messung aller fünf Zustände. Während eines Durchgangs bleiben Smartphone, Einspannung und Untergrund unverändert. Zwischen zwei Durchgängen wird das Smartphone vollständig herausgenommen und neu eingespannt; außerdem wird die phyphox-Messung neu gestartet. Damit entstehen zehn voneinander unabhängige Einspannungen und zehn Messungen pro Zustand.
+
+Um Einflüsse durch Erwärmung, Akkuzustand oder Messzeit nicht systematisch mit einer bestimmten Lüfterstufe zu verknüpfen, wird die Reihenfolge der Zustände zwischen den Durchgängen ausbalanciert:
+
+Der Akkustand des lüfters war zwischen 84% und 78%; Der des Handys zwischen 74% und 58%. Die gesamten Messungen wurden in einem Zeitraum von 3 Stunden aufgenommen.
+
+| Durchgang | Reihenfolge der Zustände |
+|---:|---|
+| 1 | 0 → 1 → 2 → 3 → 4 |
+| 2 | 1 → 2 → 3 → 4 → 0 |
+| 3 | 2 → 3 → 4 → 0 → 1 |
+| 4 | 3 → 4 → 0 → 1 → 2 |
+| 5 | 4 → 0 → 1 → 2 → 3 |
+| 6 | 4 → 3 → 2 → 1 → 0 |
+| 7 | 3 → 2 → 1 → 0 → 4 |
+| 8 | 2 → 1 → 0 → 4 → 3 |
+| 9 | 1 → 0 → 4 → 3 → 2 |
+| 10 | 0 → 4 → 3 → 2 → 1 |
+
+Die Hauptmessungen finden auf einem Schreibtisch statt. Zusätzliche Durchgänge auf dem Boden und auf einem Fensterbrett werden als gesonderte Robustheitsmessungen gekennzeichnet. Der Untergrund wird innerhalb eines Durchgangs nicht verändert und gemeinsam mit der Session dokumentiert.
+
+Für alle Aufnahmen gelten dieselben Einstellungen und dieselbe Messdauer. Zusätzlich werden Durchgang, Reihenfolge, Untergrund und besondere Abweichungen notiert. Die Dateinamen enthalten mindestens Zustand, Wiederholung und Session, beispielsweise:
+
+```text
+fan_level3_v04_session07_surface_desk
+```
+
+Bei der späteren Modellbewertung werden vollständige Sessions zusammengehalten. Messungen desselben Durchgangs dürfen nicht gleichzeitig in Trainings- und Testdaten vorkommen, da dies zu einer zu optimistischen Bewertung führen könnte.
 
 ## Verarbeitungspipeline
 
@@ -55,6 +86,15 @@ Von jeder Beschleunigungsachse wird ihr Mittelwert abgezogen. Dadurch liegen die
 ### 4. Frequenzanalyse
 
 Vor der FFT wird ein Hann-Fenster angewendet, um Spektralleckage an den Rändern des gewählten Zeitausschnitts zu reduzieren. Anschließend wird mit `numpy.fft.rfft` das einseitige Spektrum eines reellen Signals berechnet. Die Amplituden werden über die Summe des Fensters normiert und – mit Ausnahme von Gleichanteil und gegebenenfalls Nyquist-Bin – verdoppelt.
+
+### Features
+1. Gesamt-RMS im Zeitbereich
+Berechne pro Messung einen gemeinsamen RMS-Wert über alle drei zentrierten Achsen:
+\[
+a_\mathrm{RMS} =
+\sqrt{\operatorname{mean}(x^2+y^2+z^2)}
+\]
+
 
 ### 5. Visualisierung
 

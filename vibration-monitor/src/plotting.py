@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 from pathlib import Path
+import numpy as np
 
 def plot_all_data(measurements: dict[str, pd.DataFrame], results_dir: Path) -> None:
     for name, data in measurements.items():
@@ -40,15 +41,19 @@ def plot_all_ffts_inkl_peaks(spectra: dict[str, pd.DataFrame], results_dir: Path
         
         axes[0].plot(spectrum[axis_labels[0]],spectrum[axis_labels[1]],color="g")
         axes[0].set_title("Beschleunigung x")
-        axes[0].set_ylabel("FFT-Betrag")  
+        axes[0].set_ylabel("FFT-Betrag")
+        axes[0].set_ylim(0, 0.03)    
         
         axes[1].plot(spectrum[axis_labels[0]],spectrum[axis_labels[2]],color="b")
         axes[1].set_title("Beschleunigung y")
-        axes[1].set_ylabel("FFT-Betrag")  
+        axes[1].set_ylabel("FFT-Betrag")
+        axes[1].set_ylim(0, 0.03)      
 
         axes[2].plot(spectrum[axis_labels[0]],spectrum[axis_labels[3]],color="y")
         axes[2].set_title("Beschleunigung z")
         axes[2].set_ylabel("FFT-Betrag")
+        axes[2].set_ylim(0, 0.03)
+
         axes[2].set_xlabel("Frequenz (Hz)")
 # plot all selected peaks in right subplot
         
@@ -129,3 +134,39 @@ def plot_one_measurement(name: str, data: pd.DataFrame) -> None:
     fig.suptitle(name)
     fig.tight_layout(rect=[0,0,1,0.95]) # damit titel nicht überlappen
     return fig, axes
+
+
+def plot_rms_values(rms_values: pd.DataFrame, results_dir: Path)-> None:
+    # code from codex start
+    fig, ax = plt.subplots(figsize=(9,6))
+    rms_values.boxplot(
+    column="rms",
+    by="level",
+    ax=ax,
+    )
+
+    for level, group in rms_values.groupby("level"):
+        x_positions = np.linspace(
+            level + 1 - 0.12,
+            level + 1 + 0.12,
+            len(group),
+        )
+
+        ax.scatter(
+            x_positions,
+            group["rms"],
+            color="red",
+            zorder=3,
+        )
+
+    ax.set_xlabel("Ventilatorstufe")
+    ax.set_ylabel("Gesamt-RMS (m/s²)")
+    ax.set_title("RMS-Werte nach Ventilatorstufe")
+    fig.suptitle("")
+    fig.tight_layout()
+    # code from codex end
+    results_dir.mkdir(parents=True, exist_ok=True) 
+    file_path = results_dir / "rms_boxplot.png"
+    fig.savefig(file_path)
+    plt.close(fig)
+    return fig, ax

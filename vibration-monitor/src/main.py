@@ -4,10 +4,12 @@ from src.plotting import plot_one_measurement
 from src.plotting import plot_all_data
 from src.plotting import plot_all_ffts
 from src.plotting import plot_all_ffts_inkl_peaks
+from src.plotting import plot_rms_values
 from src.signal_processing import choose_frame
 from src.signal_processing import remove_dc_offset
 from src.signal_processing import calc_fft
-from src.features import extract_strongest_peaks
+from src.features import calc_rel_frequ_band_energy 
+from src.features import calc_RMS
 from src.features import extract_prominent_peaks
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -23,18 +25,18 @@ def main() -> None:
     framed_measurements = choose_frame(measurements, 5,30)
     centered_measurements = remove_dc_offset(framed_measurements)
     # plot_all_data(centered_measurements, RESULTS_DIR) # activate/deactivate if you need to plot/replot data
-
+    # rms_values = calc_RMS(centered_measurements)
+    # plot_rms_values(rms_values, RESULTS_DIR)
     spectra = calc_fft(centered_measurements)
 
     # plot_all_ffts(spectra, RESULTS_DIR)
 
-    strongest_peaks = extract_prominent_peaks(spectra)
+    # strongest_peaks = extract_prominent_peaks(spectra)
 
-    plot_all_ffts_inkl_peaks(spectra, RESULTS_DIR, strongest_peaks)
-   
+    # plot_all_ffts_inkl_peaks(spectra, RESULTS_DIR, strongest_peaks)
+    band_energies = calc_rel_frequ_band_energy(spectra)
     print(type(spectra))
-
-
+    
     # plot data
     # name, data = select_measurement(measurements,"fan",1,1)
     # plot_one_measurement(name, data)

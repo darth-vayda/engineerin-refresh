@@ -7,7 +7,7 @@ DATA_FILE = "raw data.csv"
 
 def import_data(data_path: Path) -> dict[str, pd.DataFrame]:
 
-   # speichert die liste aller zip files in all_files
+   # speichert die liste aller zip files in zip_paths
     zip_paths = sorted(data_path.glob("*.zip")) 
 
     # raise error if no zip file was found
@@ -33,7 +33,10 @@ def import_data(data_path: Path) -> dict[str, pd.DataFrame]:
       
             if data_file is None:
                 raise FileNotFoundError( f"Keine '{DATA_FILE}' in {zip_path.name} gefunden.")
-        measurements[measurement_name.rsplit(" ",1)[-1]] = data #.rsplit=nimm nur den rechten letzten teil (zeit der messungen brauchen wir nicht)
+            
+        #.rsplit=nimm nur den rechten letzten teil (zeit der messungen brauchen wir nicht)
+        measurement_name_short = measurement_name.rsplit(" ",1)[-1]
+        measurements[measurement_name_short] = data 
     return measurements
 
 def select_measurement(
